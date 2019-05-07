@@ -97,8 +97,8 @@ def get_iterator(src_vocab_file, tgt_vocab_file, batch_size,
     tgt_dataset = tf.data.TextLineDataset(target_file)
     src_tgt_dataset = tf.data.Dataset.zip((src_dataset, tgt_dataset))
 
-    # src_tgt_dataset = src_tgt_dataset.shuffle(
-    #     buffer_size, random_seed)
+    src_tgt_dataset = src_tgt_dataset.shuffle(
+        buffer_size, random_seed)
 
     # split data
     src_tgt_dataset = src_tgt_dataset.map(
@@ -169,17 +169,32 @@ def get_iterator(src_vocab_file, tgt_vocab_file, batch_size,
         source_sequence_length=src_seq_len,
         target_sequence_length=tgt_seq_len,
         source_file=source_file,
-        target_file=target_file)
+        target_file=target_file), src_vocab_table, tgt_vocab_table
+
+
+def process_decoder_input(target_data, tgt_vocab_table, batch_size):
+    """
+    Preprocess target data for encoding
+    :return: Preprocessed target data
+    """
+    # get '<GO>' id
+    go_id = 5
+
+    after_slice = tf.strided_slice(target_data, [0, 0], [batch_size, -1], [1, 1])
+    after_concat = tf.concat([tf.fill([batch_size, 1], go_id), after_slice], 1)
+
+    return after_concat
 
 
 if __name__ == "__main__":
     # handle_casia2015("/Users/hdx/data/casia2015/", "./data/")
     # create_vocab_files("./data/casia2015_ch.txt", "./data/casia2015_ch_vocab.txt", 10)
     # create_vocab_files("./data/casia2015_en.txt", "./data/casia2015_en_vocab.txt", 10)
-    iterator = get_iterator(src_vocab_file="./data/casia2015_en_vocab.txt",
-                            tgt_vocab_file="./data/casia2015_ch_vocab.txt",
-                            batch_size=2,
-                            random_seed=666)
+    iterator, src_vocab_table, tgt_vocab_table = get_iterator(
+        src_vocab_file="./data/casia2015_en_vocab.txt",
+        tgt_vocab_file="./data/casia2015_ch_vocab.txt",
+        batch_size=2, random_seed=666
+    )
 
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
