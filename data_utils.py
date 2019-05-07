@@ -187,33 +187,33 @@ def process_decoder_input(target_data, tgt_vocab_table, batch_size):
 
 
 if __name__ == "__main__":
-    handle_casia2015("/home/hdx/data/casia2015/", "./data/")
-    create_vocab_files("./data/casia2015_ch.txt", "./data/casia2015_ch_vocab.txt", 10)
-    create_vocab_files("./data/casia2015_en.txt", "./data/casia2015_en_vocab.txt", 10)
-    # iterator, src_vocab_table, tgt_vocab_table = get_iterator(
-    #     src_vocab_file="./data/casia2015_en_vocab.txt",
-    #     tgt_vocab_file="./data/casia2015_ch_vocab.txt",
-    #     batch_size=2, random_seed=666
-    # )
-    #
-    # with tf.Session() as sess:
-    #     sess.run(tf.global_variables_initializer())
-    #     tf.tables_initializer().run()
-    #     for i in range(0, 1):
-    #         sess.run(iterator.initializer,
-    #                  feed_dict={iterator.source_file: "./data/casia2015_en.txt",
-    #                             iterator.target_file: "./data/casia2015_ch.txt"})
-    #         while True:
-    #             try:
-    #                 source, target, src_seq_len, tgt_seq_len = \
-    #                     sess.run([iterator.source,
-    #                               iterator.target,
-    #                               iterator.source_sequence_length,
-    #                               iterator.target_sequence_length])
-    #                 print(source)
-    #                 print(target)
-    #                 print(src_seq_len)
-    #                 print(tgt_seq_len)
-    #                 print()
-    #             except tf.errors.OutOfRangeError:
-    #                 break
+    # handle_casia2015("/Users/hdx/data/casia2015/", "./data/")
+    # create_vocab_files("./data/casia2015_ch.txt", "./data/casia2015_ch_vocab.txt", 10)
+    # create_vocab_files("./data/casia2015_en.txt", "./data/casia2015_en_vocab.txt", 10)
+    iterator, src_vocab_table, tgt_vocab_table = get_iterator(
+        src_vocab_file="./data/casia2015_en_vocab.txt",
+        tgt_vocab_file="./data/casia2015_ch_vocab.txt",
+        batch_size=2, random_seed=666
+    )
+
+    with tf.Session() as sess:
+        sess.run(tf.global_variables_initializer())
+        tf.tables_initializer().run()
+        for i in range(0, 1):
+            sess.run(iterator.initializer,
+                     feed_dict={iterator.source_file: "./data/casia2015_en.txt",
+                                iterator.target_file: "./data/casia2015_ch.txt"})
+            while True:
+                try:
+                    source, target, src_seq_len, tgt_seq_len = \
+                        sess.run([iterator.source,
+                                  iterator.target,
+                                  iterator.source_sequence_length,
+                                  iterator.target_sequence_length])
+                    print(source)
+                    print(target)
+                    print(src_seq_len)
+                    print(tgt_seq_len)
+                    print()
+                except tf.errors.OutOfRangeError:
+                    break

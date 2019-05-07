@@ -200,25 +200,24 @@ class BaseModel(object):
 
         return train_output, infer_output
 
-    def build_graph(self, graph, hparams, tgt_vocab_table):
-        with graph.as_default():
-            train_logits, inference_logits = self._build_model(hparams, None, tgt_vocab_table)
+    def build_graph(self, hparams, tgt_vocab_table):
+        train_logits, inference_logits = self._build_model(hparams, None, tgt_vocab_table)
 
-            training_logits = tf.identity(train_logits.rnn_output, name='logits')
-            inference_logits = tf.identity(inference_logits.sample_id, name='predictions')
+        training_logits = tf.identity(train_logits.rnn_output, name='logits')
+        inference_logits = tf.identity(inference_logits.sample_id, name='predictions')
 
-            masks = tf.sequence_mask(self.target_sequence_length, None, dtype=tf.float32, name='masks')
+        masks = tf.sequence_mask(self.target_sequence_length, None, dtype=tf.float32, name='masks')
 
-            cost = tf.contrib.seq2seq.sequence_loss(
-                training_logits,
-                self.target,
-                masks
-            )
+        cost = tf.contrib.seq2seq.sequence_loss(
+            training_logits,
+            self.target,
+            masks
+        )
 
-            optimizer = tf.train.AdamOptimizer(self.learning_rate)
-            gradients = optimizer.compute_gradients(cost)
-            capped_gradients = [(tf.clip_by_value(grad, -1., 1.), var) for grad, var in gradients if grad is not None]
-            train_op = optimizer.apply_gradients(capped_gradients)
+        optimizer = tf.train.AdamOptimizer(self.learning_rate)
+        gradients = optimizer.compute_gradients(cost)
+        capped_gradients = [(tf.clip_by_value(grad, -1., 1.), var) for grad, var in gradients if grad is not None]
+        train_op = optimizer.apply_gradients(capped_gradients)
 
         return train_op, inference_logits
 
